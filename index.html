@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Synthesizer - User Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #7f8c8d;
+        }
+        .concept-box {
+            background: white;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .example-box {
+            background: #ecf0f1;
+            border: 2px solid #95a5a6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .recipe {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .recipe h4 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .command {
+            background: #2c3e50;
+            color: #2ecc71;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎛️ Drone Synthesizer User Guide</h1>
+    
+    <p>Welcome to the drone synthesizer! This is a <strong>sound printer</strong>—not a real-time instrument. You design your sound by choosing parameters, hit "generate", and wait for the computer to render your creation. This approach encourages you to think carefully about what you want before you make it, just like composers in the early days of computer music.</p>
+
+    <h2>📦 Installation</h2>
+    
+    <p>This project uses <code>uv</code> for modern Python package management. If you need to install or reinstall:</p>
+    
+    <div class="command">
+        # Install uv if you don't have it<br>
+        curl -LsSf https://astral.sh/uv/install.sh | sh<br>
+        <br>
+        # Then run the synth<br>
+        uv run drone.py --help
+    </div>
+
+    <h2>🎚️ Understanding the Controls</h2>
+
+    <div class="concept-box">
+        <h3>Seed (--seed, -s)</h3>
+        <p>The seed is the DNA of your sound. It's a single number that determines <em>everything</em> about how your drone will sound. The same seed will always produce the exact same sound—this is called <strong>deterministic generation</strong>. You can share seeds with friends like sharing recipes.</p>
+        <p><strong>Try:</strong> Start with seed 42, then try 1337, 9999, or your birthday as YYYYMMDD.</p>
+    </div>
+
+    <div class="concept-box">
+        <h3>Duration (--duration, -d)</h3>
+        <p>How long your sound lasts, in seconds. Longer durations let slow modulations develop and evolve. Shorter ones are punchier.</p>
+        <p><strong>Typical range:</strong> 15-60 seconds. Very long drones (2-3 minutes) can be meditative.</p>
+    </div>
+
+    <div class="concept-box">
+        <h3>Voices (--voices, -v)</h3>
+        <p>Each voice is an independent layer of sound. More voices = richer, more complex textures. Fewer voices = cleaner, more focused sounds.</p>
+        <p><strong>Sweet spot:</strong> 3-7 voices. One voice can sound thin; 10+ voices might become muddy.</p>
+    </div>
+
+    <div class="concept-box">
+        <h3>Output (--output, -o)</h3>
+        <p>The filename for your generated WAV file. Use descriptive names!</p>
+        <p><strong>Example:</strong> <code>dark_ambient_42.wav</code> or <code>spaceship_hum.wav</code></p>
+    </div>
+
+    <h2>🔬 What's Actually Happening?</h2>
+
+    <p>The synth generates "drone" sounds by layering multiple voices. Each voice contains:</p>
+
+    <ul>
+        <li><strong>An oscillator</strong> - the core tone generator (sine, saw, square waves, or noise)</li>
+        <li><strong>LFOs (Low Frequency Oscillators)</strong> - slow modulations that make the sound "breathe" and evolve. They're oscillators just like the main one, but running much slower (below the range of pitch)</li>
+        <li><strong>Filters</strong> - shape the tone by removing high or low frequencies</li>
+        <li><strong>Envelopes</strong> - control how the sound fades in and out</li>
+        <li><strong>Effects</strong> - distortion and reverb add character and space</li>
+    </ul>
+
+    <div class="note">
+        <strong>Key insight:</strong> An LFO and an oscillator are doing the same job (oscillating), but at different speeds. Below about 20 Hz, we hear it as "wobble" or "modulation". Above 20 Hz, we hear it as "pitch". This is one of the beautiful fundamentals of synthesis!
+    </div>
+
+    <h2>💻 Command Line Usage</h2>
+
+    <table>
+        <tr>
+            <th>Argument</th>
+            <th>Short</th>
+            <th>Default</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>--seed</td>
+            <td>-s</td>
+            <td>42</td>
+            <td>Random seed (any integer)</td>
+        </tr>
+        <tr>
+            <td>--duration</td>
+            <td>-d</td>
+            <td>30.0</td>
+            <td>Length in seconds (float)</td>
+        </tr>
+        <tr>
+            <td>--voices</td>
+            <td>-v</td>
+            <td>5</td>
+            <td>Number of layers (integer)</td>
+        </tr>
+        <tr>
+            <td>--output</td>
+            <td>-o</td>
+            <td>drone.wav</td>
+            <td>Output filename</td>
+        </tr>
+    </table>
+
+    <h3>Basic Examples</h3>
+
+    <div class="command">
+        # Generate with defaults (seed 42, 30 seconds, 5 voices)<br>
+        uv run drone.py
+    </div>
+
+    <div class="command">
+        # Custom seed and duration<br>
+        uv run drone.py -s 1337 -d 45
+    </div>
+
+    <div class="command">
+        # More voices for complexity<br>
+        uv run drone.py -v 8 -o thick_texture.wav
+    </div>
+
+    <div class="command">
+        # Complete custom sound<br>
+        uv run drone.py --seed 20240315 --duration 60 --voices 6 --output my_drone.wav
+    </div>
+
+    <h2>🎵 Sound Recipe Collection</h2>
+
+    <h3>Quick Start - Classic Sounds</h3>
+
+    <div class="recipe">
+        <h4>🌃 "Blade Runner Pad" - Deep, Ominous, Cinematic</h4>
+        <div class="command">uv run drone.py -s 2001 -d 45 -v 6 -o blade_runner.wav</div>
+        <p><strong>Why it works:</strong> Seed 2001 favors lower frequencies and longer filter sweeps. Six voices create a thick, layered atmosphere.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>✨ "Shimmer Wash" - Bright, Ethereal, Spacious</h4>
+        <div class="command">uv run drone.py -s 777 -d 40 -v 5 -o shimmer.wav</div>
+        <p><strong>Why it works:</strong> This seed tends toward higher partials and more resonance, creating a crystalline quality.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🌊 "Deep Rumble" - Sub-bass, Dark, Powerful</h4>
+        <div class="command">uv run drone.py -s 13 -d 50 -v 4 -o rumble.wav</div>
+        <p><strong>Why it works:</strong> Fewer voices keep it focused. Seed 13 emphasizes low frequencies—you might feel this one more than hear it!</p>
+    </div>
+
+    <div class="recipe">
+        <h4>⚡ "Pulsing Energy" - Rhythmic, Dynamic, Hypnotic</h4>
+        <div class="command">uv run drone.py -s 808 -d 35 -v 7 -o pulse.wav</div>
+        <p><strong>Why it works:</strong> This seed creates LFOs that sync up to create rhythmic patterns. More voices = more polyrhythms.</p>
+    </div>
+
+    <h3>Exploration Library - Deeper Sounds</h3>
+
+    <div class="recipe">
+        <h4>🏭 "Industrial Hum" - Mechanical, Gritty, Textured</h4>
+        <div class="command">uv run drone.py -s 1984 -d 55 -v 8 -o industrial.wav</div>
+        <p>Dense layering with seed 1984 creates a wall of sound that feels almost mechanical. Great for sci-fi atmospheres.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🌌 "Cosmic Void" - Sparse, Mysterious, Alien</h4>
+        <div class="command">uv run drone.py -s 3141 -d 70 -v 3 -o cosmic.wav</div>
+        <p>Only three voices leave space between the tones. Long duration lets slow modulations fully develop.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🔥 "Harsh Noise" - Aggressive, Dense, Chaotic</h4>
+        <div class="command">uv run drone.py -s 666 -d 30 -v 9 -o harsh.wav</div>
+        <p>Nine voices with this seed create a thick, aggressive wall. Not subtle—turn it up!</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🌙 "Nocturne" - Gentle, Peaceful, Meditative</h4>
+        <div class="command">uv run drone.py -s 432 -d 90 -v 4 -o nocturne.wav</div>
+        <p>Longer durations work well for meditation. This seed creates gentle, rolling tones that evolve slowly.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🎭 "Tension" - Unsettling, Building, Dramatic</h4>
+        <div class="command">uv run drone.py -s 911 -d 40 -v 5 -o tension.wav</div>
+        <p>Creates dissonant intervals and unpredictable modulations. Perfect for horror or thriller soundtracks.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🌊 "Ocean Depths" - Subaquatic, Murky, Mysterious</h4>
+        <div class="command">uv run drone.py -s 2049 -d 60 -v 6 -o ocean.wav</div>
+        <p>Heavy filtering and low frequencies create an underwater feeling. Close your eyes and sink down.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>🌈 "Spectral" - Harmonic, Pure, Resonant</h4>
+        <div class="command">uv run drone.py -s 528 -d 45 -v 5 -o spectral.wav</div>
+        <p>This seed tends to produce more harmonic relationships between voices, creating a unified, pure tone.</p>
+    </div>
+
+    <div class="recipe">
+        <h4>⚙️ "Machine Dreams" - Robotic, Pulsing, Synthetic</h4>
+        <div class="command">uv run drone.py -s 8080 -d 50 -v 7 -o machine.wav</div>
+        <p>Regular, mechanical patterns emerge from the LFO interactions. Feels programmed and intentional.</p>
+    </div>
+
+    <h2>🧪 Experimentation Tips</h2>
+
+    <ul>
+        <li><strong>Start with the classics above</strong> to understand what different parameters feel like</li>
+        <li><strong>Change one thing at a time</strong> - try the same seed with different voice counts</li>
+        <li><strong>Use meaningful seeds</strong> - dates, favorite numbers, coordinates, etc.</li>
+        <li><strong>Keep a notebook</strong> - write down seeds you like and what they remind you of</li>
+        <li><strong>Think before you render</strong> - this is a sound printer, not a toy. Plan your sound!</li>
+        <li><strong>Compare extremes</strong> - try seed 1 vs seed 1000000, or 2 voices vs 10 voices</li>
+        <li><strong>Layer in a DAW</strong> - generate multiple drones and overlap them in Audacity or similar</li>
+    </ul>
+
+    <h2>🎓 Going Further</h2>
+
+    <p>Once you're comfortable with the basics, try:</p>
+
+    <ul>
+        <li><strong>Creating a series</strong> - Use sequential seeds (1000, 1001, 1002...) to make variations</li>
+        <li><strong>Matching durations</strong> - Generate multiple 30-second pieces that can be cross-faded</li>
+        <li><strong>Finding your palette</strong> - What range of seeds gives you the sounds you like?</li>
+        <li><strong>Reading the code</strong> - Open <code>drone.py</code> and see how the oscillators and filters work</li>
+    </ul>
+
+    <div class="note">
+        <strong>Remember:</strong> Every sound you generate is completely unique and reproducible. The seed is like a coordinate in infinite sound-space. You're not just making noise—you're exploring a vast, deterministic universe of possibilities.
+    </div>
+
+    <h2>🐛 Troubleshooting</h2>
+
+    <p><strong>Command not found?</strong> Make sure <code>uv</code> is installed and in your PATH.</p>
+    <p><strong>Generation takes too long?</strong> Reduce duration or voices. A 60-second, 10-voice drone can take a minute to render.</p>
+    <p><strong>Sound is too quiet/loud?</strong> The synth normalizes output, but you can adjust levels in any audio editor.</p>
+    <p><strong>Can't hear anything?</strong> Some seeds produce very low frequencies—try with headphones or speakers with good bass response.</p>
+
+    <hr style="margin: 40px 0; border: none; border-top: 2px solid #ccc;">
+
+    <p style="text-align: center; color: #7f8c8d; font-size: 0.9em;">
+        Happy droning! Share your favorite seeds with others—sound printing is better together. 🎛️✨
+    </p>
+
+</body>
+</html>

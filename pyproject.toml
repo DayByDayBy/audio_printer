@@ -1,0 +1,14 @@
+[project]
+name = "audio-printer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "gradio>=5.49.1",
+    "matplotlib>=3.10.7",
+    "numpy>=2.3.4",
+    "scipy>=1.16.3",
+    "soundfile>=0.13.1",
+    "tqdm>=4.67.1",
+]
