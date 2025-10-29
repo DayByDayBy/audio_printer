@@ -13,7 +13,7 @@ from pathlib import Path
 import io
 
 # Import the DroneTrack class from drone.py
-from drone import DroneTrack
+from simplistic_drone import DroneTrack
 
 # Create output directory if it doesn't exist
 OUTPUT_DIR = Path("generated_drones")
